@@ -1,24 +1,57 @@
-import { Module } from '@nestjs/common';
-import { MongooseModule } from '@nestjs/mongoose';
-import { EventSchema } from 'src/events/entities/event-entity';
+import { Injectable, Module, Scope } from '@nestjs/common';
+import { TypeOrmModule } from '@nestjs/typeorm';
 import { CoffeesController } from './coffees.controller';
 import { CoffeesService } from './coffees.service';
-import { Coffee, CoffeeSchema } from './entities/coffee.entity';
+import { Coffee } from './entities/coffee.entity';
+import { Flavor } from './entities/flavor.entity';
+import { Event } from '../events/entities/event.entity';
+import { COFFEE_BRANDS } from './coffees.constants';
+import { Connection } from 'typeorm';
+import { ConfigModule } from '@nestjs/config';
+import coffeesConfig from './config/coffees.config';
+
+// class ConfigService {}
+// class DevelpmentConfigService {}
+// class ProductionConfigService {}
+
+// @Injectable()
+// export class CoffeeBrandsFactory {
+//   create() {
+//     return ['buddy brew', 'nescafe'];
+//   }
+// }
 
 @Module({
   imports: [
-    MongooseModule.forFeature([
-      {
-        name: Coffee.name,
-        schema: CoffeeSchema,
-      },
-      {
-        name: Event.name,
-        schema: EventSchema,
-      },
-    ]),
+    TypeOrmModule.forFeature([Coffee, Flavor, Event]),
+    ConfigModule.forFeature(coffeesConfig),
   ],
   controllers: [CoffeesController],
-  providers: [CoffeesService],
+  providers: [
+    CoffeesService,
+    //{
+    // provide: ConfigService,
+    // useClass:
+    //   process.env.NODE_ENV === 'develpoment'
+    //     ? DevelpmentConfigService
+    //     : ProductionConfigService,
+    //},
+    // CoffeeBrandsFactory,
+    // {
+    //   provide: COFFEE_BRANDS,
+    //   useFactory: (brandsFactory: CoffeeBrandsFactory) =>
+    //     brandsFactory.create(),
+    //   inject: [CoffeeBrandsFactory],
+    // },
+    // {
+    //   provide: COFFEE_BRANDS,
+    //   useFactory: async (connection: Connection): Promise<string[]> => {
+    //     const coffeeBrands = await Promise.resolve(['buddy brew', 'nescafe']);
+    //     return coffeeBrands;
+    //   },
+    //   scope: Scope.TRANSIENT,
+    // },
+  ],
+  exports: [CoffeesService],
 })
 export class CoffeesModule {}
